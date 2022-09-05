@@ -4,7 +4,10 @@
 #define MAX_NOMBRE_POKEMON 30
 
 struct _pokemon_t {
-	//definir la estructura del pokemon
+	char nombre[MAX_NOMBRE_POKEMON];
+	int nivel;
+	int ataque;
+	int defensa;
 };
 
 pokemon_t *pokemon_crear_desde_string(char *string)

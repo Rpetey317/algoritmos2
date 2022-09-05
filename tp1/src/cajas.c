@@ -3,7 +3,8 @@
 #include <stdlib.h>
 
 struct _caja_t {
-	//definir la estructura de la caja
+	pokemon_t **pokemones;
+	int cantidad
 };
 
 caja_t *caja_cargar_archivo(const char *nombre_archivo)
