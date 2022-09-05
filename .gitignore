@@ -2,4 +2,7 @@
 *.out
 *.gdb
 
+# Entregas
+entrega_tp*.zip
+
 *.ini
