@@ -3,7 +3,7 @@
 *.gdb
 
 # Entregas
-entrega_tp*.zip
+entrega-tp*.zip
 
 *.ini
 
