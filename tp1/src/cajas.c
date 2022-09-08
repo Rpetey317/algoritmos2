@@ -2,6 +2,8 @@
 #include "pokemon.h"
 #include <stdlib.h>
 #include <stdio.h>
+#include <stdbool.h>
+#include <string.h>
 
 #define MAX_STRING_POKEMON 64 //str de 30 char max + 5 ints (10max c/u) + ;;;
 
@@ -9,6 +11,53 @@ struct _caja_t {
 	pokemon_t **pokemones;
 	int cantidad
 };
+
+// |||FUNCIONES PRIVADAS|||
+
+/*
+ * Añade un pokemon al final de una caja.
+ * Devuelve TRUE se se pudo agregar el pokemon, FALSE en caso contrario.
+ */
+bool caja_agregar_pokemon(caja_t *caja, pokemon_t *pokemon)
+{
+	if (caja == NULL || pokemon == NULL || caja->pokemones == NULL)
+		return false;
+
+	pokemon_t **temp = realloc(caja->pokemones, sizeof(pokemon_t*)*((size_t)(caja->cantidad + 1)));
+	if (temp == NULL)
+		return false;
+	else
+		caja->pokemones = temp;
+
+	char pokecopia[MAX_STRING_POKEMON];
+	
+	char *nombre = pokemon_nombre(pokemon);
+	strcpy(pokecopia, nombre);
+	strcat(pokecopia, ";");
+
+	char *aux = malloc(sizeof(char)*10);
+
+	sprintf(aux, "%i", pokemon_nivel(pokemon));
+	strcat(pokecopia, aux);
+	strcat(pokecopia, ";");
+
+	sprintf(aux, "%i", pokemon_ataque(pokemon));
+	strcat(pokecopia, aux);
+	strcat(pokecopia, ";");
+	
+	sprintf(aux, "%i", pokemon_defensa(pokemon));
+	strcat(pokecopia, aux);
+	strcat(pokecopia, "\n");
+
+	free(aux);
+	free(nombre);
+
+	caja->pokemones[caja->cantidad] = pokemon_crear_desde_string(pokecopia);
+	caja->cantidad++;
+	return true;
+}
+
+// |||FUNCIONES PUBLICAS|||
 
 caja_t *caja_cargar_archivo(const char *nombre_archivo)
 {
@@ -72,7 +121,26 @@ int caja_guardar_archivo(caja_t *caja, const char *nombre_archivo)
 
 caja_t *caja_combinar(caja_t *caja1, caja_t *caja2)
 {
-	return NULL;
+	if (caja1 == NULL || caja2 == NULL || caja1->pokemones == NULL || caja2->pokemones == NULL)
+		return NULL;
+
+	caja_t *caja3 = malloc(sizeof(caja_t));
+	caja3->pokemones = malloc(sizeof(pokemon_t*));
+	caja3->cantidad = 0;
+
+	for (int i = 0; i < caja1->cantidad; i++){
+		bool exito = caja_agregar_pokemon(caja3, caja1->pokemones[i]);
+		if (!exito)
+			return NULL;
+	}
+
+	for (int i = 0; i < caja2->cantidad; i++){
+		bool exito = caja_agregar_pokemon(caja3, caja2->pokemones[i]);
+		if (!exito)
+			return NULL;
+	}
+
+	return caja3;
 }
 
 int caja_cantidad(caja_t *caja)
