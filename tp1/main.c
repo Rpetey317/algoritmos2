@@ -14,5 +14,9 @@ int main(int argc, char *argv[]) {
 	prueba2();
 	printf("FIN PRUEBA #2\n\n\n");
 
+	printf("PRUEBA #3: combinar 2 cajas\n");
+	prueba3();
+	printf("FIN PRUEBA #3\n\n\n");
+
 	return 0;
 }
