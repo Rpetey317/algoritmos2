@@ -1,4 +1,4 @@
-EXENAME=output
+EXENAME=salida.out
 FLAGS-GCC=-g -std=c99 -Wall -Wconversion -Wtype-limits -pedantic -O2
 FLAGS-VALGRIND=--leak-check=full --track-origins=yes --show-reachable=yes --show-leak-kinds=all
 
