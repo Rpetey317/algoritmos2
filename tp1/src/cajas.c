@@ -57,6 +57,29 @@ bool caja_agregar_pokemon(caja_t *caja, pokemon_t *pokemon)
 	return true;
 }
 
+/*
+ * Ordena los pokemones de la caja en orden alfabético
+ * No ordena según otro critero pokemones con el mismo nombre
+ */
+void caja_ordenar_alfabeticamente(caja_t *caja)
+{
+	if (caja == NULL)
+		return;
+	for (int i = 0; i < caja->cantidad - 1; i++){
+		for (int j = 0; j < caja->cantidad - i - 1; j++){
+			char *nombre1 = pokemon_nombre(caja->pokemones[j]);
+			char *nombre2 = pokemon_nombre(caja->pokemones[j+1]);
+			if (strcmp(nombre1, nombre2) >= 0){
+				pokemon_t *aux = caja->pokemones[j];
+				caja->pokemones[j] = caja->pokemones[j+1];
+				caja->pokemones[j+1] = aux;
+			}
+			free(nombre1);
+			free(nombre2);
+		}
+	}
+}
+
 // |||FUNCIONES PUBLICAS|||
 
 caja_t *caja_cargar_archivo(const char *nombre_archivo)
@@ -128,6 +151,34 @@ caja_t *caja_combinar(caja_t *caja1, caja_t *caja2)
 	caja3->pokemones = malloc(sizeof(pokemon_t*));
 	caja3->cantidad = 0;
 
+	/*
+	int i1 = 0, i2 = 0;
+
+	while (i1 < caja1->cantidad && i2 < caja2->cantidad){
+		if (i1 >= caja1->cantidad){
+			caja_agregar_pokemon(caja3, caja2->pokemones[i2]);
+			i2++;
+		} else if (i2 >= caja2->cantidad){
+			caja_agregar_pokemon(caja3, caja1->pokemones[i1]);
+			i1++;
+		} else {
+			char *nombre1 = pokemon_nombre(caja1->pokemones[i1]);
+			char *nombre2 = pokemon_nombre(caja2->pokemones[i2]);
+
+			if (strcmp(nombre1, nombre2) <= 0){
+				caja_agregar_pokemon(caja3, caja1->pokemones[i1]);
+				i1++;
+			} else {
+				caja_agregar_pokemon(caja3, caja2->pokemones[i2]);
+				i2++;
+ 			}
+
+			free(nombre1);
+			free(nombre2);
+		}
+	} 
+	*/
+
 	for (int i = 0; i < caja1->cantidad; i++){
 		bool exito = caja_agregar_pokemon(caja3, caja1->pokemones[i]);
 		if (!exito)
@@ -140,6 +191,7 @@ caja_t *caja_combinar(caja_t *caja1, caja_t *caja2)
 			return NULL;
 	}
 
+	caja_ordenar_alfabeticamente(caja3);
 	return caja3;
 }
 
