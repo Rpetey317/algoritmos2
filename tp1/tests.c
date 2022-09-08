@@ -4,8 +4,8 @@
 #include <stdio.h>
 #include <stdlib.h> 
 
+//prueba 1: funciones de pokemon.c
 void prueba1(){
-    //test 1: pokemon.c
 	char *str_pikachu = "Pikachu;10;15;10";
 	char *str_charmander = "Charmander;6;20;5";
 	char *str_eevee = "Eevee;12;15;7";
@@ -38,4 +38,31 @@ void prueba1(){
 		pokemon_destruir(pokes[i]);
 
 	free(pokes);
+}
+
+//Prueba 2: abrir un csv, imprimirlo, y copiarlo a otro
+void prueba2(){
+	caja_t* cajatest = caja_cargar_archivo("./cajatest.csv");
+
+	for (int i = 0; i < caja_cantidad(cajatest); i++){
+		int lvl, atk, def;
+		lvl = pokemon_nivel(caja_obtener_pokemon(cajatest, i));
+		atk = pokemon_ataque(caja_obtener_pokemon(cajatest, i));
+		def = pokemon_defensa(caja_obtener_pokemon(cajatest, i));
+
+		printf("---Pokemon #%i---\n", i);
+		
+		char *nombre = pokemon_nombre(caja_obtener_pokemon(cajatest, i));
+		printf("Nombre: %s\n", nombre);
+		free(nombre);
+
+		printf("Nivel: %i\n", lvl);
+		printf("Ataque: %i\n", atk);
+		printf("Defensa: %i\n", def);
+		printf("---Pokemon #%i---\n\n", i);
+	}
+
+	caja_guardar_archivo(cajatest, "cajatestcp.csv");
+
+	caja_destruir(cajatest);
 }
