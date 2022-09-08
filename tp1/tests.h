@@ -12,4 +12,10 @@ void prueba1();
  */
 void prueba2();
 
+/*
+ * Abre 2 archivos .csv de cajas, los combina en una 3ra caja,
+ * Imprime las 3 por pantalla, y guarda la combinación en otro .csv
+ */
+void prueba3();
+
 #endif //TESTS_H_
