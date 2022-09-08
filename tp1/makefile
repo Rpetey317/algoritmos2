@@ -9,4 +9,4 @@ run:
 	valgrind ${FLAGS-VALGRIND} ./${EXENAME}
 
 compile-noflags:
-	gcc main.c ./src/*.c -g -std=c99 -O2 -o ${EXENAME}
+	gcc *.c ./src/*.c -g -std=c99 -O2 -o ${EXENAME}
