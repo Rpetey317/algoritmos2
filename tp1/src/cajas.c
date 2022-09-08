@@ -27,7 +27,9 @@ caja_t *caja_cargar_archivo(const char *nombre_archivo)
 
 	while (!feof(archivo)){
 		char pokemon[MAX_STRING_POKEMON];
-		fscanf(archivo, "%s\n", pokemon);
+		int scan = fscanf(archivo, "%[^\n]\n", pokemon);
+		if (scan != 1)
+			return NULL;
 
 		pokemon_t **temp = realloc(caja->pokemones, sizeof(pokemon_t*)*((size_t)(caja->cantidad + 1)));
 		if (temp == NULL)
@@ -45,6 +47,26 @@ caja_t *caja_cargar_archivo(const char *nombre_archivo)
 
 int caja_guardar_archivo(caja_t *caja, const char *nombre_archivo)
 {
+	if (caja == NULL || nombre_archivo == NULL)
+		return 0;
+	
+	FILE *archivo = fopen(nombre_archivo, "w");
+	if (archivo == NULL)
+		return 0;
+
+	for (int i = 0; i < caja->cantidad; i++){
+		int lvl, atk, def;
+		lvl = pokemon_nivel(caja->pokemones[i]);
+		atk = pokemon_ataque(caja->pokemones[i]);
+		def = pokemon_defensa(caja->pokemones[i]);
+		char *nombre = pokemon_nombre(caja->pokemones[i]);
+		
+		fprintf(archivo, "%s;%i;%i;%i\n", nombre, lvl, atk, def);
+		free(nombre);
+	}
+	
+	fclose(archivo);
+
 	return 0;
 }
 
