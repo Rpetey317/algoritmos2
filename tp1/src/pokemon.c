@@ -18,9 +18,11 @@ pokemon_t *pokemon_crear_desde_string(char *string)
 	if (pokemon == NULL)
 		return NULL;
 
-	sscanf(string, "%[^;];%i;%i;%i\n", pokemon->nombre, &pokemon->nivel, &pokemon->ataque, &pokemon->defensa);
-
-	return pokemon;
+	int scan = sscanf(string, "%[^;];%i;%i;%i\n", pokemon->nombre, &pokemon->nivel, &pokemon->ataque, &pokemon->defensa);
+	if (scan == 4)
+		return pokemon;
+	else
+		return NULL;
 }
 
 int pokemon_nivel(pokemon_t *pokemon)
