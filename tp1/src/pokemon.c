@@ -14,15 +14,20 @@ struct _pokemon_t {
 
 pokemon_t *pokemon_crear_desde_string(char *string)
 {
+	if (string == NULL)
+		return NULL;
+
 	pokemon_t *pokemon = malloc(sizeof(pokemon_t));
 	if (pokemon == NULL)
 		return NULL;
 
 	int scan = sscanf(string, "%[^;];%i;%i;%i\n", pokemon->nombre, &pokemon->nivel, &pokemon->ataque, &pokemon->defensa);
-	if (scan == 4)
+	if (scan == 4){
 		return pokemon;
-	else
+	} else {
+		free(pokemon);
 		return NULL;
+ 	}
 }
 
 int pokemon_nivel(pokemon_t *pokemon)
@@ -66,11 +71,14 @@ int pokemon_defensa(pokemon_t *pokemon)
 
 const char *pokemon_nombre(pokemon_t *pokemon)
 {
+	/*
 	char *dest = malloc(MAX_NOMBRE_POKEMON * sizeof(char));
 	if (dest == NULL)
 		return NULL;
+	*/
+	char *dest = pokemon->nombre;
 	
-	strcpy(dest, pokemon->nombre);
+	//strcpy(dest, pokemon->nombre);
 	return dest;
 }
 

@@ -4,12 +4,13 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include <string.h>
+#include <math.h>
 
 #define MAX_STRING_POKEMON 64 //str de 30 char max + 5 ints (10max c/u) + ;;;
 
 struct _caja_t {
 	pokemon_t **pokemones;
-	int cantidad
+	int cantidad;
 };
 
 // |||FUNCIONES PRIVADAS|||
@@ -31,8 +32,7 @@ bool caja_agregar_pokemon(caja_t *caja, pokemon_t *pokemon)
 
 	char pokecopia[MAX_STRING_POKEMON];
 	
-	char *nombre = pokemon_nombre(pokemon);
-	strcpy(pokecopia, nombre);
+	strcpy(pokecopia, pokemon_nombre(pokemon));
 	strcat(pokecopia, ";");
 
 	char *aux = malloc(sizeof(char)*10);
@@ -50,7 +50,6 @@ bool caja_agregar_pokemon(caja_t *caja, pokemon_t *pokemon)
 	strcat(pokecopia, "\n");
 
 	free(aux);
-	free(nombre);
 
 	caja->pokemones[caja->cantidad] = pokemon_crear_desde_string(pokecopia);
 	caja->cantidad++;
@@ -67,15 +66,11 @@ void caja_ordenar_alfabeticamente(caja_t *caja)
 		return;
 	for (int i = 0; i < caja->cantidad - 1; i++){
 		for (int j = 0; j < caja->cantidad - i - 1; j++){
-			char *nombre1 = pokemon_nombre(caja->pokemones[j]);
-			char *nombre2 = pokemon_nombre(caja->pokemones[j+1]);
-			if (strcmp(nombre1, nombre2) >= 0){
+			if (strcmp(pokemon_nombre(caja->pokemones[j]), pokemon_nombre(caja->pokemones[j+1])) >= 0){
 				pokemon_t *aux = caja->pokemones[j];
 				caja->pokemones[j] = caja->pokemones[j+1];
 				caja->pokemones[j+1] = aux;
 			}
-			free(nombre1);
-			free(nombre2);
 		}
 	}
 }
@@ -84,6 +79,9 @@ void caja_ordenar_alfabeticamente(caja_t *caja)
 
 caja_t *caja_cargar_archivo(const char *nombre_archivo)
 {
+	if (nombre_archivo == NULL)
+		return NULL;
+
 	FILE *archivo = fopen(nombre_archivo, "r");
 	if (archivo == NULL)
 		return NULL;
@@ -114,6 +112,7 @@ caja_t *caja_cargar_archivo(const char *nombre_archivo)
 	}
 	
 	fclose(archivo);
+	caja_ordenar_alfabeticamente(caja);
 	return caja;
 }
 
@@ -126,20 +125,20 @@ int caja_guardar_archivo(caja_t *caja, const char *nombre_archivo)
 	if (archivo == NULL)
 		return 0;
 
+	int counter = 0;
 	for (int i = 0; i < caja->cantidad; i++){
 		int lvl, atk, def;
 		lvl = pokemon_nivel(caja->pokemones[i]);
 		atk = pokemon_ataque(caja->pokemones[i]);
 		def = pokemon_defensa(caja->pokemones[i]);
-		char *nombre = pokemon_nombre(caja->pokemones[i]);
 		
-		fprintf(archivo, "%s;%i;%i;%i\n", nombre, lvl, atk, def);
-		free(nombre);
+		if (fprintf(archivo, "%s;%i;%i;%i\n", pokemon_nombre(caja->pokemones[i]), lvl, atk, def) > 0)
+			counter++;
 	}
 	
 	fclose(archivo);
 
-	return 0;
+	return counter;
 }
 
 caja_t *caja_combinar(caja_t *caja1, caja_t *caja2)
@@ -151,44 +150,18 @@ caja_t *caja_combinar(caja_t *caja1, caja_t *caja2)
 	caja3->pokemones = malloc(sizeof(pokemon_t*));
 	caja3->cantidad = 0;
 
-	/*
-	int i1 = 0, i2 = 0;
-
-	while (i1 < caja1->cantidad && i2 < caja2->cantidad){
-		if (i1 >= caja1->cantidad){
-			caja_agregar_pokemon(caja3, caja2->pokemones[i2]);
-			i2++;
-		} else if (i2 >= caja2->cantidad){
-			caja_agregar_pokemon(caja3, caja1->pokemones[i1]);
-			i1++;
-		} else {
-			char *nombre1 = pokemon_nombre(caja1->pokemones[i1]);
-			char *nombre2 = pokemon_nombre(caja2->pokemones[i2]);
-
-			if (strcmp(nombre1, nombre2) <= 0){
-				caja_agregar_pokemon(caja3, caja1->pokemones[i1]);
-				i1++;
-			} else {
-				caja_agregar_pokemon(caja3, caja2->pokemones[i2]);
-				i2++;
- 			}
-
-			free(nombre1);
-			free(nombre2);
-		}
-	} 
-	*/
-
-	for (int i = 0; i < caja1->cantidad; i++){
-		bool exito = caja_agregar_pokemon(caja3, caja1->pokemones[i]);
-		if (!exito)
-			return NULL;
+	int i = 0;
+	bool exito = true;
+	while (i < caja1->cantidad && exito){
+		exito = caja_agregar_pokemon(caja3, caja1->pokemones[i]);
+		i++;
 	}
 
-	for (int i = 0; i < caja2->cantidad; i++){
-		bool exito = caja_agregar_pokemon(caja3, caja2->pokemones[i]);
-		if (!exito)
-			return NULL;
+	i = 0;
+	exito = true;
+	while (i < caja2->cantidad && exito){
+		exito = caja_agregar_pokemon(caja3, caja2->pokemones[i]);
+		i++;
 	}
 
 	caja_ordenar_alfabeticamente(caja3);
@@ -216,7 +189,17 @@ pokemon_t *caja_obtener_pokemon(caja_t *caja, int n)
 
 int caja_recorrer(caja_t *caja, void (*funcion)(pokemon_t *))
 {
-	return 0;
+	if (caja == NULL || funcion == NULL || caja->pokemones == NULL)
+		return 0;
+	
+	int contador = 0;
+	for (int i = 0; i < caja->cantidad; i++){
+		if (caja->pokemones[i] != NULL){
+			funcion(caja->pokemones[i]);
+			contador++;
+		}
+	}
+	return contador;
 }
 
 void caja_destruir(caja_t *caja)
