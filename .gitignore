@@ -6,3 +6,6 @@
 entrega_tp*.zip
 
 *.ini
+
+#archivos especificos
+tp1/cajatestcp.csv
