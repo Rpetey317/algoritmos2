@@ -8,7 +8,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define MAX_STRING_POKEMON 64 // str de 30 char max + 5 ints (10max c/u) + ;;;
+#define MAX_STRING_POKEMON 64 // str de 30 char max + 5 int (10max c/u) + ; + \0
 
 struct _caja_t {
 	pokemon_t **pokemones;
@@ -34,43 +34,29 @@ bool caja_agregar_pokemon(caja_t *caja, pokemon_t *pokemon)
 	else
 		caja->pokemones = temp;
 
-	char pokecopia[MAX_STRING_POKEMON];
+	char pokemon_string[MAX_STRING_POKEMON];
 
-	strcpy(pokecopia, pokemon_nombre(pokemon));
-	strcat(pokecopia, ";");
+	strcpy(pokemon_string, pokemon_nombre(pokemon));
+	strcat(pokemon_string, ";");
 
-	char *aux = malloc(sizeof(char) * 10);
+	char aux[10];
 
 	sprintf(aux, "%i", pokemon_nivel(pokemon));
-	strcat(pokecopia, aux);
-	strcat(pokecopia, ";");
+	strcat(pokemon_string, aux);
+	strcat(pokemon_string, ";");
 
 	sprintf(aux, "%i", pokemon_ataque(pokemon));
-	strcat(pokecopia, aux);
-	strcat(pokecopia, ";");
+	strcat(pokemon_string, aux);
+	strcat(pokemon_string, ";");
 
 	sprintf(aux, "%i", pokemon_defensa(pokemon));
-	strcat(pokecopia, aux);
-	strcat(pokecopia, "\n");
+	strcat(pokemon_string, aux);
+	strcat(pokemon_string, "\n");
 
-	free(aux);
-
-	caja->pokemones[caja->cantidad] = pokemon_crear_desde_string(pokecopia);
+	caja->pokemones[caja->cantidad] =
+		pokemon_crear_desde_string(pokemon_string);
 	caja->cantidad++;
 	return true;
-}
-
-/*
- * Intercambia poke1 con poke2
- */
-void pokeswap(pokemon_t *poke1, pokemon_t *poke2)
-{
-	if (poke1 == NULL || poke2 == NULL)
-		return;
-
-	pokemon_t *aux = poke1;
-	poke1 = poke2;
-	poke2 = aux;
 }
 
 /*
@@ -86,8 +72,9 @@ void caja_ordenar_alfabeticamente(caja_t *caja)
 			if (strcmp(pokemon_nombre(caja->pokemones[j]),
 				   pokemon_nombre(caja->pokemones[j + 1])) >=
 			    0) {
-				pokeswap(caja->pokemones[j],
-					 caja->pokemones[j + 1]);
+				pokemon_t *aux = caja->pokemones[j];
+				caja->pokemones[j] = caja->pokemones[j + 1];
+				caja->pokemones[j + 1] = aux;
 			}
 		}
 	}
