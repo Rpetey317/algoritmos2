@@ -1,6 +1,7 @@
 #include "pokemon.h"
-#include <stdlib.h>
+
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 #define MAX_NOMBRE_POKEMON 30
@@ -21,13 +22,14 @@ pokemon_t *pokemon_crear_desde_string(char *string)
 	if (pokemon == NULL)
 		return NULL;
 
-	int scan = sscanf(string, "%[^;];%i;%i;%i\n", pokemon->nombre, &pokemon->nivel, &pokemon->ataque, &pokemon->defensa);
-	if (scan == 4){
+	int scan = sscanf(string, "%[^;];%i;%i;%i\n", pokemon->nombre,
+			  &pokemon->nivel, &pokemon->ataque, &pokemon->defensa);
+	if (scan == 4) {
 		return pokemon;
 	} else {
 		free(pokemon);
 		return NULL;
- 	}
+	}
 }
 
 int pokemon_nivel(pokemon_t *pokemon)
@@ -52,7 +54,7 @@ int pokemon_ataque(pokemon_t *pokemon)
 
 	if (atk < 0)
 		atk = 0;
-		
+
 	return atk;
 }
 
@@ -65,21 +67,16 @@ int pokemon_defensa(pokemon_t *pokemon)
 
 	if (def < 0)
 		def = 0;
-		
+
 	return def;
 }
 
 const char *pokemon_nombre(pokemon_t *pokemon)
 {
-	/*
-	char *dest = malloc(MAX_NOMBRE_POKEMON * sizeof(char));
-	if (dest == NULL)
+	if (pokemon == NULL)
 		return NULL;
-	*/
-	char *dest = pokemon->nombre;
-	
-	//strcpy(dest, pokemon->nombre);
-	return dest;
+	else
+		return pokemon->nombre;
 }
 
 void pokemon_destruir(pokemon_t *pokemon)

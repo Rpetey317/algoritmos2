@@ -4,8 +4,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-int main(int argc, char *argv[]) {
-
+int main(int argc, char *argv[])
+{
 	printf("PRUEBA #1: crear, mostrar y destruir pokemones\n");
 	prueba1();
 	printf("FIN PRUEBA #1\n\n\n");
