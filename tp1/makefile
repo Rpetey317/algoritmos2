@@ -1,7 +1,7 @@
 EXENAME=salida.out
 FLAGS-GCC=-g -std=c99 -Wall -Wconversion -Wtype-limits -Werror -pedantic -O2
 FLAGS-VALGRIND=--leak-check=full --track-origins=yes --show-reachable=yes --show-leak-kinds=all
-ARCHIVOS-ZIP=*.c *.h src cajatest*.csv
+ARCHIVOS-ZIP=*.c *.h src cajatest*.csv Reporte.pdf
 ZIPNAME=entrega-tp1.zip
 
 clear:
