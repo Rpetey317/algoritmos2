@@ -48,7 +48,8 @@ void prueba2()
 	void (*imprimir_pokes)(pokemon_t *) = imprimir_pokemon;
 	caja_recorrer(cajatest, imprimir_pokes);
 
-	caja_guardar_archivo(cajatest, "cajacopy.csv");
+	int guardados = caja_guardar_archivo(cajatest, "cajacopy.csv");
+	printf("\nPokemones guardados en la caja copiada: %i\n", guardados);
 
 	caja_destruir(cajatest);
 }
@@ -73,7 +74,8 @@ void prueba3()
 	caja_recorrer(caja3, imprimir_pokes);
 	printf("---CAJA COMBINADA---\n");
 
-	caja_guardar_archivo(caja3, "cajacombinada.csv");
+	int guardados = caja_guardar_archivo(caja3, "cajacombinada.csv");
+	printf("\nPokemones guardados en la 3° caja: %i\n", guardados);
 
 	caja_destruir(caja1);
 	caja_destruir(caja2);

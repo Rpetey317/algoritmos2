@@ -18,6 +18,29 @@ struct _caja_t {
 // |||FUNCIONES PRIVADAS|||
 
 /*
+ * Recibe un pokemon y copia su representación como una string de un csv en dest
+ * La string INCLUYE el \n al final
+ * Devuelve true si se pudo copiar el pokemon exitosamente
+ */
+bool string_copiar_pokemon(pokemon_t *pokemon, char *dest)
+{
+	if (pokemon == NULL)
+		return false;
+
+	int lvl, atk, def;
+	lvl = pokemon_nivel(pokemon);
+	atk = pokemon_ataque(pokemon);
+	def = pokemon_defensa(pokemon);
+
+	int print = sprintf(dest, "%s;%i;%i;%i\n", pokemon_nombre(pokemon), lvl,
+			    atk, def);
+	if (print > 0 && print < MAX_STRING_POKEMON)
+		return true;
+
+	return false;
+}
+
+/*
  * Añade un pokemon al final de una caja.
  * Devuelve TRUE se se pudo agregar el pokemon, FALSE en caso contrario.
  */
@@ -35,33 +58,24 @@ bool caja_agregar_pokemon(caja_t *caja, pokemon_t *pokemon)
 		caja->pokemones = temp;
 
 	char pokemon_string[MAX_STRING_POKEMON];
+	bool copiado;
+	copiado = string_copiar_pokemon(pokemon, pokemon_string);
 
-	strcpy(pokemon_string, pokemon_nombre(pokemon));
-	strcat(pokemon_string, ";");
-
-	char aux[10];
-
-	sprintf(aux, "%i", pokemon_nivel(pokemon));
-	strcat(pokemon_string, aux);
-	strcat(pokemon_string, ";");
-
-	sprintf(aux, "%i", pokemon_ataque(pokemon));
-	strcat(pokemon_string, aux);
-	strcat(pokemon_string, ";");
-
-	sprintf(aux, "%i", pokemon_defensa(pokemon));
-	strcat(pokemon_string, aux);
-	strcat(pokemon_string, "\n");
-
-	caja->pokemones[caja->cantidad] =
-		pokemon_crear_desde_string(pokemon_string);
-	caja->cantidad++;
-	return true;
+	if (copiado) {
+		pokemon_t *nuevo_pokemon =
+			pokemon_crear_desde_string(pokemon_string);
+		if (nuevo_pokemon != NULL) {
+			caja->pokemones[caja->cantidad] = nuevo_pokemon;
+			caja->cantidad++;
+		}
+		return true;
+	}
+	return false;
 }
 
 /*
- * Ordena los pokemones de la caja en orden alfabético
- * No ordena según otro critero pokemones con el mismo nombre
+ * Ordena los pokemones de la caja en orden alfabético (bubble sort)
+ * No ordena según ningún otro critero pokemones con el mismo nombre
  */
 void caja_ordenar_alfabeticamente(caja_t *caja)
 {
@@ -92,31 +106,42 @@ caja_t *caja_cargar_archivo(const char *nombre_archivo)
 		return NULL;
 
 	caja_t *caja = malloc(sizeof(caja_t));
-	if (caja == NULL)
+	if (caja == NULL) {
+		fclose(archivo);
 		return NULL;
+	}
 
 	caja->cantidad = 0;
 	caja->pokemones = malloc(sizeof(pokemon_t *));
-	if (caja->pokemones == NULL)
+	if (caja->pokemones == NULL) {
+		fclose(archivo);
+		free(caja);
 		return NULL;
+	}
 
-	while (!feof(archivo)) {
-		char pokemon[MAX_STRING_POKEMON];
-		int scan = fscanf(archivo, "%[^\n]\n", pokemon);
-		if (scan != 1)
-			return NULL;
+	bool exito = true;
+	while (!feof(archivo) && exito) {
+		char pokestring[MAX_STRING_POKEMON];
+		int scan = fscanf(archivo, "%[^\n]\n", pokestring);
 
 		pokemon_t **temp = realloc(
 			caja->pokemones,
 			sizeof(pokemon_t *) * ((size_t)(caja->cantidad + 1)));
-		if (temp == NULL)
-			return NULL;
-		else
+
+		if (temp == NULL || scan != 1) {
+			exito = false;
+			if (temp != NULL)
+				free(temp);
+		} else {
 			caja->pokemones = temp;
 
-		caja->pokemones[caja->cantidad] =
-			pokemon_crear_desde_string(pokemon);
-		caja->cantidad++;
+			pokemon_t *pokemon =
+				pokemon_crear_desde_string(pokestring);
+			if (pokemon != NULL) {
+				caja->pokemones[caja->cantidad] = pokemon;
+				caja->cantidad++;
+			}
+		}
 	}
 
 	fclose(archivo);
@@ -135,15 +160,14 @@ int caja_guardar_archivo(caja_t *caja, const char *nombre_archivo)
 
 	int counter = 0;
 	for (int i = 0; i < caja->cantidad; i++) {
-		int lvl, atk, def;
-		lvl = pokemon_nivel(caja->pokemones[i]);
-		atk = pokemon_ataque(caja->pokemones[i]);
-		def = pokemon_defensa(caja->pokemones[i]);
-
-		if (fprintf(archivo, "%s;%i;%i;%i\n",
-			    pokemon_nombre(caja->pokemones[i]), lvl, atk,
-			    def) > 0)
-			counter++;
+		char pokestring[MAX_STRING_POKEMON];
+		bool copiado;
+		copiado = string_copiar_pokemon(caja->pokemones[i], pokestring);
+		if (copiado) {
+			int print = fprintf(archivo, "%s", pokestring);
+			if (print > 0)
+				counter++;
+		}
 	}
 
 	fclose(archivo);
@@ -217,7 +241,7 @@ void caja_destruir(caja_t *caja)
 {
 	if (caja != NULL) {
 		for (int i = 0; i < caja->cantidad; i++)
-			free(caja->pokemones[i]);
+			pokemon_destruir(caja->pokemones[i]);
 		free(caja->pokemones);
 		free(caja);
 	}
