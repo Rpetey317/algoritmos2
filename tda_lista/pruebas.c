@@ -148,11 +148,74 @@ void sacoElementosDeLaLista()
 
 void iterarSobreLaLista()
 {
+	lista_t *lista = lista_crear();
+	for (int i = 0; i < 100; i++) {
+		int *elemento = malloc(sizeof(int));
+		if (elemento)
+			*elemento = i;
+		lista_insertar(lista, (void *)elemento);
+	}
+
+	lista_destruir_todo(lista, free);
+}
+
+void pruebasCola()
+{
+	cola_t *cola = cola_crear();
+	char a = 'a', b = 'b', c = 'c', d = 'd', e = 'e';
+
+	pa2m_afirmar(cola != NULL, "Puedo crear una cola");
+	pa2m_afirmar(cola_tamanio(cola) == 0, "La nueva cola se crea vacía");
+
+	cola_encolar(cola, &a);
+	cola_encolar(cola, &b);
+	cola_encolar(cola, &c);
+	cola_encolar(cola, &d);
+	cola_encolar(cola, &e);
+
+	pa2m_afirmar(cola_tamanio(cola) == 5,
+		     "Encolar elementos actuailza el tamaño correctamente");
+
+	void *desencolado = cola_desencolar(cola);
+	pa2m_afirmar(*(char *)desencolado == a,
+		     "Se desencola el primer elemento de la cola");
+	pa2m_afirmar(*(char *)cola_frente(cola) == b,
+		     "cola_frente devuelve el primer elemento de la cola");
+
+	cola_destruir(cola);
+}
+
+void pruebasPila()
+{
+	pila_t *pila = pila_crear();
+	char a = 'a', b = 'b', c = 'c', d = 'd', e = 'e';
+
+	pa2m_afirmar(pila != NULL, "Puedo crear una pila");
+	pa2m_afirmar(pila_tamanio(pila) == 0, "La nueva pila se crea vacía");
+
+	pila_apilar(pila, &a);
+	pila_apilar(pila, &b);
+	pila_apilar(pila, &c);
+	pila_apilar(pila, &d);
+	pila_apilar(pila, &e);
+
+	pa2m_afirmar(pila_tamanio(pila) == 5,
+		     "Apilar elementos actuailza el tamaño correctamente");
+
+	void *desapilado = pila_desapilar(pila);
+	pa2m_afirmar(*(char *)desapilado == e,
+		     "Se desapila el último elemento de la pila");
+	pa2m_afirmar(*(char *)pila_tope(pila) == d,
+		     "pila_tope devuelve el elemento en el tope de la pila");
+
+	pila_destruir(pila);
 }
 
 int main()
 {
+	printf("\n================\n");
 	printf("Pruebas de Lista\n");
+	printf("================\n");
 
 	pa2m_nuevo_grupo("Pruebas de creación de lista");
 	listaSeCreaVacia();
@@ -165,6 +228,20 @@ int main()
 
 	pa2m_nuevo_grupo("Pruebas de iteración sobre la lista");
 	iterarSobreLaLista();
+
+	printf("\n===============\n");
+	printf("Pruebas de Cola\n");
+	printf("===============\n");
+
+	pa2m_nuevo_grupo("Pruebas de cola");
+	pruebasCola();
+
+	printf("\n===============\n");
+	printf("Pruebas de Pila\n");
+	printf("===============\n");
+
+	pa2m_nuevo_grupo("Pruebas de pila");
+	pruebasPila();
 
 	return pa2m_mostrar_reporte();
 }
