@@ -29,7 +29,7 @@ lista_t *lista_insertar(lista_t *lista, void *elemento)
 	if (!(lista->nodo_inicio))
 		lista->nodo_inicio = nuevo_nodo;
 	if (lista->nodo_fin)
-		(*(lista->nodo_fin)).siguiente = nuevo_nodo;
+		lista->nodo_fin->siguiente = nuevo_nodo;
 
 	lista->nodo_fin = nuevo_nodo;
 	lista->cantidad++;
@@ -182,7 +182,7 @@ void *lista_ultimo(lista_t *lista)
 {
 	if (!lista || !lista->nodo_fin)
 		return NULL;
-	return (*lista->nodo_fin).elemento;
+	return lista->nodo_fin->elemento;
 }
 
 bool lista_vacia(lista_t *lista)
@@ -194,10 +194,9 @@ bool lista_vacia(lista_t *lista)
 
 size_t lista_tamanio(lista_t *lista)
 {
-	size_t tamanio = 0;
-	if (lista)
-		tamanio = lista->cantidad;
-	return tamanio;
+	if (!lista)
+		return 0;
+	return lista->cantidad;
 }
 
 void lista_destruir(lista_t *lista)
