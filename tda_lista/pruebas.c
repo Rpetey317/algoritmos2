@@ -146,15 +146,56 @@ void sacoElementosDeLaLista()
 	lista_destruir(lista);
 }
 
+bool es_menor(void *i, void *contexto)
+{
+	return *((int *)i) < *((int *)contexto);
+}
+
 void iterarSobreLaLista()
 {
 	lista_t *lista = lista_crear();
 	for (int i = 0; i < 100; i++) {
 		int *elemento = malloc(sizeof(int));
 		if (elemento)
-			*elemento = i;
+			*elemento = i + 1;
 		lista_insertar(lista, (void *)elemento);
 	}
+
+	int hasta = 100000;
+	size_t cuenta = lista_con_cada_elemento(lista, es_menor, &hasta);
+	pa2m_afirmar(cuenta == lista_tamanio(lista),
+		     "Puedo recorrer toda la lista con el iterador interno");
+
+	hasta = 50;
+	cuenta = lista_con_cada_elemento(lista, es_menor, &hasta);
+	pa2m_afirmar(
+		cuenta == (size_t)hasta,
+		"Puedo recorrer parcialmente la lista con el iterador interno");
+
+	pa2m_afirmar(
+		lista_con_cada_elemento(lista, NULL, NULL) == 0,
+		"Iterar una lista sin una función no itera ningún elemento");
+	pa2m_afirmar(lista_con_cada_elemento(NULL, es_menor, &hasta) == 0,
+		     "Iterar una lista que no existe no itera ningún elemento");
+
+	int suma = 0;
+	lista_iterador_t *iterador;
+	for (iterador = lista_iterador_crear(lista);
+	     lista_iterador_tiene_siguiente(iterador);
+	     lista_iterador_avanzar(iterador)) {
+		suma += *((int *)lista_iterador_elemento_actual(iterador));
+	}
+	lista_iterador_destruir(iterador);
+	pa2m_afirmar(
+		suma == 5050,
+		"Se pueden iterar todos los elementos de la lista con el iterador externo");
+
+	pa2m_afirmar(!lista_iterador_crear(NULL),
+		     "No se puede crear un iterador de una lista inexistente");
+	pa2m_afirmar(!lista_iterador_avanzar(NULL),
+		     "No se puede avanzar un iterador inexistente");
+	pa2m_afirmar(!lista_iterador_elemento_actual(NULL),
+		     "El elemento actual de un iterador nulo es nulo");
 
 	lista_destruir_todo(lista, free);
 }
