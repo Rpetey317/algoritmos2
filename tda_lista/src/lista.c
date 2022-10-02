@@ -114,7 +114,7 @@ void *lista_quitar_de_posicion(lista_t *lista, size_t posicion)
 	if (posicion == lista->cantidad - 1) {
 		elemento = lista_quitar(lista);
 	} else if (posicion == 0) {
-		elemento = (*lista->nodo_inicio).elemento;
+		elemento = lista->nodo_inicio->elemento;
 		nodo_t *nodo_a_eliminar = lista->nodo_inicio;
 		lista->nodo_inicio = lista->nodo_inicio->siguiente;
 		free(nodo_a_eliminar);
@@ -312,12 +312,10 @@ size_t lista_con_cada_elemento(lista_t *lista, bool (*funcion)(void *, void *),
 	size_t cuenta = 0;
 	nodo_t *nodo_actual = lista->nodo_inicio;
 	bool seguir = true;
-	while (cuenta < lista->cantidad && seguir) {
-		if (nodo_actual) {
-			seguir = funcion(nodo_actual->elemento, contexto);
-			nodo_actual = nodo_actual->siguiente;
-			cuenta++;
-		}
+	while (nodo_actual && seguir) {
+		seguir = funcion(nodo_actual->elemento, contexto);
+		nodo_actual = nodo_actual->siguiente;
+		cuenta++;
 	}
 
 	return cuenta;
