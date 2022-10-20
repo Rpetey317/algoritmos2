@@ -66,22 +66,25 @@ void swap(void **i1, void **i2)
  * Función recursiva auxiliar de abb_quitar, que solo debe ser llamada por esa función.
  */
 nodo_abb_t *abb_quitar_rec(nodo_abb_t *subarbol, void *elemento,
-			   abb_comparador comparador, void **eliminado)
+			   abb_comparador comparador, void **devolver,
+			   bool *eliminado)
 {
 	if (!subarbol)
 		return NULL;
 
 	if (comparador(subarbol->elemento, elemento) == 0) {
-		*eliminado = subarbol->elemento;
+		*devolver = subarbol->elemento;
 
 		if (!subarbol->izquierda) {
 			nodo_abb_t *aux = subarbol->derecha;
 			free(subarbol);
+			*eliminado = true;
 			return aux;
 		}
 		if (!subarbol->derecha) {
 			nodo_abb_t *aux = subarbol->izquierda;
 			free(subarbol);
+			*eliminado = true;
 			return aux;
 		}
 
@@ -102,14 +105,17 @@ nodo_abb_t *abb_quitar_rec(nodo_abb_t *subarbol, void *elemento,
 		predecesor->derecha = subarbol->derecha;
 		predecesor->izquierda = subarbol->izquierda;
 		free(subarbol);
+		*eliminado = true;
 		return predecesor;
 	} else if (comparador(subarbol->elemento, elemento) > 0) {
-		subarbol->izquierda = abb_quitar_rec(
-			subarbol->izquierda, elemento, comparador, eliminado);
+		subarbol->izquierda = abb_quitar_rec(subarbol->izquierda,
+						     elemento, comparador,
+						     devolver, eliminado);
 		return subarbol;
 	} else {
 		subarbol->derecha = abb_quitar_rec(subarbol->derecha, elemento,
-						   comparador, eliminado);
+						   comparador, devolver,
+						   eliminado);
 		return subarbol;
 	}
 }
@@ -117,10 +123,14 @@ nodo_abb_t *abb_quitar_rec(nodo_abb_t *subarbol, void *elemento,
 void *abb_quitar(abb_t *arbol, void *elemento)
 {
 	void *buscado = NULL;
+	bool eliminado = false;
 	if (arbol)
 		arbol->nodo_raiz = abb_quitar_rec(arbol->nodo_raiz, elemento,
-						  arbol->comparador, &buscado);
+						  arbol->comparador, &buscado,
+						  &eliminado);
 
+	if (eliminado)
+		arbol->tamanio = arbol->tamanio - 1;
 	return buscado;
 }
 
@@ -202,10 +212,8 @@ void funcion_con_elemento(nodo_abb_t *nodo, bool (*funcion)(void *, void *),
 			  void *aux, size_t *contador, bool *flag)
 {
 	if (*flag) {
-		if (funcion) {
-			*flag = funcion(nodo->elemento, aux);
-			*contador = *contador + 1;
-		}
+		*flag = funcion(nodo->elemento, aux);
+		*contador = *contador + 1;
 	}
 	return;
 }
@@ -262,8 +270,9 @@ size_t abb_con_cada_elemento(abb_t *arbol, abb_recorrido recorrido,
 	bool flag = true;
 	size_t contador = 0;
 
-	abb_con_cada_elemento_rec(arbol->nodo_raiz, recorrido, funcion, aux,
-				  &contador, &flag);
+	if (arbol && funcion)
+		abb_con_cada_elemento_rec(arbol->nodo_raiz, recorrido, funcion,
+					  aux, &contador, &flag);
 
 	return contador;
 }
@@ -286,7 +295,7 @@ void contar_elemento(nodo_abb_t *nodo, void **array, size_t tamanio_array,
 void abb_recorrer_rec(nodo_abb_t *subarbol, abb_recorrido recorrido,
 		      void **array, size_t tamanio_array, size_t *contador)
 {
-	if (!subarbol)
+	if (!subarbol || *contador >= tamanio_array)
 		return;
 
 	switch (recorrido) {
@@ -329,7 +338,8 @@ size_t abb_recorrer(abb_t *arbol, abb_recorrido recorrido, void **array,
 		    size_t tamanio_array)
 {
 	size_t contador = 0;
-	abb_recorrer_rec(arbol->nodo_raiz, recorrido, array, tamanio_array,
-			 &contador);
+	if (arbol && array)
+		abb_recorrer_rec(arbol->nodo_raiz, recorrido, array,
+				 tamanio_array, &contador);
 	return contador;
 }
