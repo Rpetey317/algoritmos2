@@ -2,7 +2,7 @@ VALGRIND_FLAGS=--leak-check=full --track-origins=yes --show-reachable=yes --erro
 CFLAGS =-g -std=c99 -Wall -Wconversion -Wtype-limits -pedantic -Werror -O0
 CC = gcc
 ZIPNAME=TDA_abb
-ZIPFILES=*.c *.h makefile src/*
+ZIPFILES=*.c *.h *.pdf makefile src/*
 
 all: clean valgrind
 

@@ -52,14 +52,19 @@ abb_t *abb_insertar(abb_t *arbol, void *elemento)
 }
 
 /*
- * Función auxiliar que intercambia 2 punteros
+ * Funcion recursiva que extrae el predecesor inmediato del padre del nodo del primer llamado
+ * El predecesor deja de estar en el árbol. Para su uso en la función abb_quitar
  */
-void swap(void **i1, void **i2)
+nodo_abb_t *extraer_predecesor_inmediato(nodo_abb_t *nodo,
+					 nodo_abb_t **predecesor)
 {
-	void *aux = *i1;
-	*i1 = *i2;
-	*i2 = aux;
-	return;
+	if (!nodo->derecha) {
+		*predecesor = nodo;
+		return nodo->izquierda;
+	}
+
+	nodo->derecha = extraer_predecesor_inmediato(nodo->derecha, predecesor);
+	return nodo;
 }
 
 /*
@@ -88,26 +93,17 @@ nodo_abb_t *abb_quitar_rec(nodo_abb_t *subarbol, void *elemento,
 			return aux;
 		}
 
-		nodo_abb_t *predecesor, *padre_predecesor;
-		predecesor = subarbol->izquierda;
-		padre_predecesor = subarbol;
-
-		while (predecesor->derecha) {
-			padre_predecesor = predecesor;
-			predecesor = predecesor->derecha;
-		}
-
-		if (padre_predecesor == subarbol)
-			subarbol->izquierda = predecesor->izquierda;
-		else
-			padre_predecesor->derecha = predecesor->izquierda;
+		nodo_abb_t *predecesor;
+		subarbol->izquierda = extraer_predecesor_inmediato(
+			subarbol->izquierda, &predecesor);
 
 		predecesor->derecha = subarbol->derecha;
 		predecesor->izquierda = subarbol->izquierda;
 		free(subarbol);
 		*eliminado = true;
 		return predecesor;
-	} else if (comparador(subarbol->elemento, elemento) > 0) {
+
+	} else if (comparador(elemento, subarbol->elemento) < 0) {
 		subarbol->izquierda = abb_quitar_rec(subarbol->izquierda,
 						     elemento, comparador,
 						     devolver, eliminado);
@@ -146,10 +142,11 @@ void *abb_buscar_rec(nodo_abb_t *subarbol, void *elemento,
 	if (comparador(subarbol->elemento, elemento) == 0)
 		return subarbol->elemento;
 
-	void *aux = abb_buscar_rec(subarbol->izquierda, elemento, comparador);
-	if (!aux)
-		aux = abb_buscar_rec(subarbol->derecha, elemento, comparador);
-	return aux;
+	if (comparador(elemento, subarbol->elemento) < 0)
+		return abb_buscar_rec(subarbol->izquierda, elemento,
+				      comparador);
+	else
+		return abb_buscar_rec(subarbol->derecha, elemento, comparador);
 }
 
 void *abb_buscar(abb_t *arbol, void *elemento)
@@ -180,10 +177,10 @@ size_t abb_tamanio(abb_t *arbol)
 void abb_destruir_rec(nodo_abb_t *subarbol, void (*destructor)(void *))
 {
 	if (subarbol) {
-		if (destructor)
-			destructor(subarbol->elemento);
 		abb_destruir_rec(subarbol->derecha, destructor);
 		abb_destruir_rec(subarbol->izquierda, destructor);
+		if (destructor)
+			destructor(subarbol->elemento);
 	}
 	free(subarbol);
 	return;

@@ -360,6 +360,7 @@ void abbNulos()
 	pa2m_afirmar(
 		abb_insertar(arbol, NULL) != NULL,
 		"Puedo insertar un puntero nulo al árbol si la función comparadora lo acepta");
+
 	abb_quitar(arbol, NULL);
 	pa2m_afirmar(abb_tamanio(arbol) == 5,
 		     "Puedo eliminar un puntero nulo del árbol");
