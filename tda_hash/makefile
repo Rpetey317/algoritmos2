@@ -1,8 +1,12 @@
 VALGRIND_FLAGS=--leak-check=full --track-origins=yes --show-reachable=yes --error-exitcode=2 --show-leak-kinds=all --trace-children=yes
 CFLAGS =-g -std=c99 -Wall -Wconversion -Wtype-limits -pedantic -Werror -O2
 CC = gcc
+ZIPNAME=TDA_abb
+ZIPFILES=*.c *.h *.pdf makefile src/*
 
-all: clean valgrind
+eall: clear clean valgrind
+
+all: clear clean valgrind-pruebas
 
 ejemplo: ejemplo.c src/*
 	$(CC) $(CFLAGS) src/*.c ejemplo.c -o ejemplo 2>&1
@@ -18,3 +22,9 @@ pruebas: src/*.c pruebas.c
 
 clean:
 	rm -f ejemplo *.o pruebas 2>&1
+
+clear:
+	clear
+
+zippy:
+	zip -r $(ZIPNAME).zip  $(ZIPFILES)

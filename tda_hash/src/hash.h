@@ -3,6 +3,7 @@
 
 #include <stdbool.h>
 #include <stddef.h>
+#define CAPACIDAD_MIN 3
 
 typedef struct hash hash_t;
 
