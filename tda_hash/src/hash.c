@@ -67,26 +67,6 @@ hash_t *hash_crear(size_t capacidad)
 }
 
 /*
- * Inserta el par en la posición correspondiente en el vector
- */
-void insertar_par(par_t *par, par_t **nuevo, size_t tamanio)
-{
-	size_t pos = djb2(par->clave) % tamanio;
-	if (!nuevo[pos]) {
-		nuevo[pos] = par;
-		par->siguiente = NULL;
-		return;
-	} else {
-		par_t *prev = nuevo[pos];
-		while (prev->siguiente)
-			prev = prev->siguiente;
-		prev->siguiente = par;
-		par->siguiente = NULL;
-		return;
-	}
-}
-
-/*
  * Duplica la capacidad de la tabla de hash y reubica los elementos almacenados
  */
 hash_t *rehash(hash_t *hash)
@@ -96,7 +76,7 @@ hash_t *rehash(hash_t *hash)
 		return NULL;
 
 	for (size_t i = 0; i < hash->capacidad; i++) {
-		par_t *par = hash->elementos[i]; //*aux = NULL;
+		par_t *par = hash->elementos[i];
 		while (par) {
 			hash_insertar(rehash, par->clave, par->elemento, NULL);
 			par = par->siguiente;
@@ -155,7 +135,6 @@ hash_t *hash_insertar(hash_t *hash, const char *clave, void *elemento,
 				reemplazado = true;
 				free(par->clave);
 				free(par);
-				;
 			} else {
 				prev->siguiente = par;
 			}
